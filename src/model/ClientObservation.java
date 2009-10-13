@@ -1,8 +1,10 @@
 package model;
 
-public interface ClientObservation {
+import net.java.ao.Entity;
+
+public interface ClientObservation  extends Entity{
  
-	private Client client;
+//	private Client client;
 	 
 }
  

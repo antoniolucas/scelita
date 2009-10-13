@@ -1,17 +1,27 @@
 package model;
 
 import net.java.ao.Entity;
-import net.java.ao.schema.NotNull;
-
 
 
 public interface Client extends Entity{
-    
-    @NotNull
-    public ClientClassification getClientClassification() ;
 
-    @NotNull
-    public void setClientClassification(ClientClassification clientClassification) ;
+
+    public String getAddress();
+
+    public void setAddress(String address);
+
+    public String getName();
+
+    public void setName(String name);
+
+    public String getNickName();
+
+    public void setNickName(String nickName);
+
+    public String getClientClassification() ;
+
+
+    public void setClientClassification(String clientClassification) ;
     
 
     public ClientObservation getClientObservation() ;
@@ -25,18 +35,15 @@ public interface Client extends Entity{
     public void setPhone(Phone phone) ;
 
 
-   @NotNull
+
    public Float getSaldo();
 
-   @NotNull
+
    public void setSaldo(Float saldo);
 
    public String getReferencia();
 
    public void setReferencia(String referencia);
-
-
-	 
 
 	 
 }

@@ -1,8 +1,10 @@
 package model;
 
-public interface Phone {
+import net.java.ao.Entity;
+
+public interface Phone  extends Entity{
  
-	private Client client;
+//	private Client client;
 	 
 }
  

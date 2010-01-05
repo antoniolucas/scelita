@@ -20,17 +20,11 @@ import net.sf.nachocalendar.components.DateField;
  * @author catia
  */
 public class Pagamento extends javax.swing.JFrame {
-    DateField dateField ;
     /** Creates new form Pagamento */
     public Pagamento() {
-        dateField = CalendarFactory.createDateField();
         initComponents();
-
-//        datePanel.add(dateField);
-//        datePanel.add(dateField);
         pack();
         this.setLocationRelativeTo(null);
-//        this.add(dateField);
     }
 
     /** This method is called from within the constructor to

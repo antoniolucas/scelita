@@ -1,10 +1,15 @@
 package model;
 
 import net.java.ao.Entity;
+import net.java.ao.OneToMany;
+import net.java.ao.OneToOne;
 
 
 public interface Client extends Entity{
 
+    public Integer getPaymentDay();
+
+    public void setPaymentDay(Integer i);
 
     public String getAddress();
 
@@ -18,21 +23,21 @@ public interface Client extends Entity{
 
     public void setNickName(String nickName);
 
-    public String getClientClassification() ;
+    public ClientClassification getClientClassification() ;
 
+    public void setClientClassification(ClientClassification clientClassification) ;
 
-    public void setClientClassification(String clientClassification) ;
+    @OneToMany
+    public ClientObservation[] getClientObservation() ;
+
+//    public void setClientObservation(ClientObservation clientObservation) ;
     
 
-    public ClientObservation getClientObservation() ;
+    @OneToMany
+    public Phone[] getPhones() ;
 
-    public void setClientObservation(ClientObservation clientObservation) ;
-    
 
-    public Phone getPhone() ;
-    
-
-    public void setPhone(Phone phone) ;
+//    public void setPhone(Phone phone) ;
 
 
 
@@ -44,6 +49,11 @@ public interface Client extends Entity{
    public String getReferencia();
 
    public void setReferencia(String referencia);
+
+   //Not implemented yet!
+   public Client getClientReferencia();
+
+   public void setClientReferencia(Client referencia);
 
 	 
 }

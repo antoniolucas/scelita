@@ -7,6 +7,7 @@
 
 package view.client;
 
+import com.avaje.ebean.Ebean;
 import controller.GenericController;
 import java.awt.AWTKeyStroke;
 import java.awt.Component;
@@ -21,6 +22,8 @@ import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import mark.utils.bean.IntFormatter;
+import mark.utils.bind.Binder;
 import model.Client;
 import model.Phone;
 import org.netbeans.validation.api.Problem;
@@ -34,6 +37,8 @@ import org.netbeans.validation.api.ui.ValidationPanel;
  */
 public class Cadastro extends javax.swing.JFrame {
 ValidationGroup validationGroup ;
+Binder binder;
+    private Client client;
     /** Creates new form Cadastro */
     public Cadastro() {
         HashSet conj = new HashSet(this.getFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS));
@@ -42,11 +47,23 @@ ValidationGroup validationGroup ;
 
         initComponents();
 //        ValidationPanel validationPanel = new ValidationPanel();
-        validationPanel.setInnerComponent(jPanel1);
+        apelido.setName("[name:nickName]");
+        diaPagamento.setName("[name:paymentDay][fmt:int]");
+        endereco.setName("[name:address]");
+        nomeCompleto.setName("[name:name]");
+        referencia.setName("[name:reference]");
+        binder = new Binder(jPanel1,Client.class,new IntFormatter());
+        //validationPanel.setInnerComponent(jPanel1);
         validationGroup = validationPanel.getValidationGroup();
         validationGroup.add(this.nomeCompleto,Validators.REQUIRE_NON_EMPTY_STRING);
         this.pack();
         this.setLocationRelativeTo(null);
+        client = new Client();
+    }
+
+    public Cadastro(Client client) {
+        this();
+        this.client = client;
     }
 
     /** This method is called from within the constructor to
@@ -189,14 +206,15 @@ ValidationGroup validationGroup ;
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel4)
-                            .addComponent(jLabel7)
-                            .addComponent(jLabel5)
-                            .addComponent(jLabel2)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel2)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(validationPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(jLabel3)
+                            .addComponent(jLabel4)
+                            .addComponent(jLabel5)
+                            .addComponent(jLabel7)
                             .addComponent(jLabel6))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(validationPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
@@ -213,15 +231,15 @@ ValidationGroup validationGroup ;
                     .addGroup(layout.createSequentialGroup()
                         .addGap(28, 28, 28)
                         .addComponent(jLabel2)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jLabel3)
                         .addGap(18, 18, 18)
+                        .addComponent(jLabel3)
+                        .addGap(23, 23, 23)
                         .addComponent(jLabel4)
                         .addGap(18, 18, 18)
                         .addComponent(jLabel7)
-                        .addGap(34, 34, 34)
+                        .addGap(29, 29, 29)
                         .addComponent(jLabel5)
-                        .addGap(84, 84, 84)
+                        .addGap(96, 96, 96)
                         .addComponent(jLabel6))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(14, 14, 14)
@@ -245,35 +263,19 @@ ValidationGroup validationGroup ;
     private void cadastrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cadastrarActionPerformed
         Problem problem = validationGroup.validateAll();
         if (problem != null) return;
-        HashMap<String,Object> params = new HashMap<String, Object>();
-        params.put("name", this.nomeCompleto.getText());
-        params.put("nickname", this.apelido.getText());
-        params.put("address", this.endereco.getText());
-        params.put("paymentday", this.diaPagamento.getValue());
-        try {
-            Client c = GenericController.em.create(Client.class, params);
-            c.setReferencia(this.referencia.getText());
-            c.save();
-
+            binder.updateModel(client);
             for (Component t : phonesPanel.getComponents()){
                 JFormattedTextField telefone = (JFormattedTextField) t;
                 if (!telefone.getText().isEmpty()){
-                    Phone p = GenericController.em.create(Phone.class);
-                    p.setNumber((Long) telefone.getValue());
-                    p.setClient(c);
-                    p.save();
+                    Phone p = new Phone((Long) telefone.getValue(), client);
                 }
-
             }
-        } catch (SQLException ex) {
-            Logger.getLogger(Cadastro.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
+            Ebean.save(client);//TODO ver se ta salvando os phones tb =p
+            this.dispose();
 
     }//GEN-LAST:event_cadastrarActionPerformed
 
     private void cadastrarKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_cadastrarKeyPressed
-
     }//GEN-LAST:event_cadastrarKeyPressed
 
     /**

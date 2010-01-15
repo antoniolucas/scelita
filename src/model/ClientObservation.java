@@ -1,16 +1,44 @@
 package model;
 
-import net.java.ao.Entity;
+import java.io.Serializable;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 
-public interface ClientObservation  extends Entity{
+@Entity
+public class ClientObservation implements Serializable {
+    @Id
+    private Long id;
 
-    public String getObservation() ;
+    private String clientObservation;
 
-    public void setObservation(String clientObservation);
+    @ManyToOne
+    private Client client ;
 
-    public Client getClient() ;
+    public Long getId() {
+        return id;
+    }
 
-    public void setClient(Client client) ;
-	 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Client getClient() {
+        return client;
+    }
+
+    public void setClient(Client client) {
+        this.client = client;
+    }
+
+    public String getClientObservation() {
+        return clientObservation;
+    }
+
+    public void setClientObservation(String clientObservation) {
+        this.clientObservation = clientObservation;
+    }
+
+    
 }
  

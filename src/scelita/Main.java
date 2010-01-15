@@ -1,5 +1,6 @@
 package scelita;
 
+import com.avaje.ebean.Ebean;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.sql.SQLException;
@@ -62,20 +63,21 @@ public class Main {
 //        }
 
 
-        EntityManager em = new EntityManager("jdbc:postgresql://localhost/scelita", "postgres", "postgres");
-
-//        em.migrate(ClientClassification.class, Client.class,Phone.class);
-        Map<String,Object> params = new HashMap<String,Object>();
-//        params.put("saldo", 1.2f);
-//        params.put("foo", 1.2f);
-
-        Client c =  em.create(Client.class,params);
-//        c.setSaldo(1.2f);
-        c.setReferencia("foobar");
-        c.setName("Lucas");
-
-        c.save();
+//        EntityManager em = new EntityManager("jdbc:postgresql://localhost/scelita", "postgres", "postgres");
 //
+////        em.migrate(ClientClassification.class, Client.class,Phone.class);
+//        Map<String,Object> params = new HashMap<String,Object>();
+////        params.put("saldo", 1.2f);
+////        params.put("foo", 1.2f);
+//
+//        Client c =  em.create(Client.class,params);
+////        c.setSaldo(1.2f);
+//        c.setReferencia("foobar");
+//        c.setName("Lucas");
+//
+//        c.save();
+//
+        Ebean.getServer(null);
 
 
 

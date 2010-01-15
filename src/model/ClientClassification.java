@@ -1,12 +1,31 @@
 package model;
 
-import net.java.ao.Entity;
+import java.io.Serializable;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 
-public interface ClientClassification extends Entity{
+@Entity
+public class ClientClassification implements Serializable {
+    @Id
+    private Long id;
  
-    public String getClassification() ;
+    private String classification;
 
-    public void setClassification(String clientClassification);
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getClassification() {
+        return classification;
+    }
+
+    public void setClassification(String classification) {
+        this.classification = classification;
+    }
 
 	 
 }

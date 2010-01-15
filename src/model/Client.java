@@ -1,59 +1,216 @@
 package model;
 
-import net.java.ao.Entity;
-import net.java.ao.OneToMany;
-import net.java.ao.OneToOne;
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.List;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import mark.utils.bean.IntFormatter;
+import mark.utils.bean.MoneyFormatter;
+import mark.utils.el.annotation.Resolvable;
+import mark.utils.el.handler.MethodHandler;
 
-
-public interface Client extends Entity{
-
-    public Integer getPaymentDay();
-
-    public void setPaymentDay(Integer i);
-
-    public String getAddress();
-
-    public void setAddress(String address);
-
-    public String getName();
-
-    public void setName(String name);
-
-    public String getNickName();
-
-    public void setNickName(String nickName);
-
-    public ClientClassification getClientClassification() ;
-
-    public void setClientClassification(ClientClassification clientClassification) ;
-
-    @OneToMany
-    public ClientObservation[] getClientObservation() ;
-
-//    public void setClientObservation(ClientObservation clientObservation) ;
+@Entity
+public class Client implements Serializable{
+    @Id
+    private Long id;
     
+    @Resolvable(accessMethod = MethodHandler.class, colName = "Nome")
+    private String name = "";
+
+    @Resolvable(accessMethod = MethodHandler.class, colName = "Apelido")
+    private String nickName = "";
+
+    @Resolvable(accessMethod = MethodHandler.class, formatter = IntFormatter.class, colName = "Dia Pagamento")
+    private Integer paymentDay = 0;
+
+    @Resolvable(accessMethod = MethodHandler.class, colName = "Endereço")
+    private String address;
+
+    @ManyToOne
+    private ClientClassification clientClassification ;
+
+    @OneToMany(mappedBy = "client")//TODO ver como sao geradas as  tabelas
+    private  List<ClientObservation> clientObservations;
 
     @OneToMany
-    public Phone[] getPhones() ;
+    private List<Phone> phones ;
+
+   @Resolvable(accessMethod = MethodHandler.class, colName = "Saldo",formatter=MoneyFormatter.class)
+   private  Float saldo;
 
 
-//    public void setPhone(Phone phone) ;
-
-
-
-   public Float getSaldo();
-
-
-   public void setSaldo(Float saldo);
-
-   public String getReferencia();
-
-   public void setReferencia(String referencia);
+   @Resolvable(accessMethod = MethodHandler.class, colName = "Referência")
+   private String reference;
 
    //Not implemented yet!
-   public Client getClientReferencia();
+    @OneToOne
+   private  Client clientReference;
 
-   public void setClientReferencia(Client referencia);
+    @Override
+    public String toString(){
+        return getName() + " - " + getReference();
+    }
+
+    public void compra(float value){
+        this.saldo += value;
+    }
+
+    public void pagamento(float value){
+        this.saldo -= value;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public ClientClassification getClientClassification() {
+        return clientClassification;
+    }
+
+    public void setClientClassification(ClientClassification clientClassification) {
+        this.clientClassification = clientClassification;
+    }
+
+    public List<ClientObservation> getClientObservations() {
+        return clientObservations;
+    }
+
+    public void setClientObservations(List<ClientObservation> clientObservations) {
+        this.clientObservations = clientObservations;
+    }
+
+    public List<Phone> getPhones() {
+        return phones;
+    }
+
+    public void setPhones(List<Phone> phones) {
+        this.phones = phones;
+    }
+
+
+    public Client getClientReference() {
+        return clientReference;
+    }
+
+    public void setClientReference(Client clientReference) {
+        this.clientReference = clientReference;
+    }
+
+    public String getReference() {
+        return reference;
+    }
+
+    public void setReference(String reference) {
+        this.reference = reference;
+    }
+
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Integer getPaymentDay() {
+        return paymentDay;
+    }
+
+    public void setPaymentDay(Integer paymentDay) {
+        this.paymentDay = paymentDay;
+    }
+
+
+    public Float getSaldo() {
+        return saldo;
+    }
+
+    public void setSaldo(Float saldo) {
+        this.saldo = saldo;
+    }
+
+    public String getNickName() {
+        return nickName;
+    }
+
+    public void setNickName(String nickName) {
+        this.nickName = nickName;
+    }
+
+    
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Client other = (Client) obj;
+        if (this.id != other.id && (this.id == null || !this.id.equals(other.id))) {
+            return false;
+        }
+        if ((this.name == null) ? (other.name != null) : !this.name.equals(other.name)) {
+            return false;
+        }
+        if (this.paymentDay != other.paymentDay && (this.paymentDay == null || !this.paymentDay.equals(other.paymentDay))) {
+            return false;
+        }
+        if ((this.address == null) ? (other.address != null) : !this.address.equals(other.address)) {
+            return false;
+        }
+        if (this.clientObservations != other.clientObservations && (this.clientObservations == null || !this.clientObservations.equals(other.clientObservations))) {
+            return false;
+        }
+        if (this.phones != other.phones && (this.phones == null || !this.phones.equals(other.phones))) {
+            return false;
+        }
+        if (this.saldo != other.saldo && (this.saldo == null || !this.saldo.equals(other.saldo))) {
+            return false;
+        }
+        if ((this.reference == null) ? (other.reference != null) : !this.reference.equals(other.reference)) {
+            return false;
+        }
+        if (this.clientReference != other.clientReference && (this.clientReference == null || !this.clientReference.equals(other.clientReference))) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 31 * hash + (this.id != null ? this.id.hashCode() : 0);
+        hash = 31 * hash + (this.name != null ? this.name.hashCode() : 0);
+        hash = 31 * hash + (this.paymentDay != null ? this.paymentDay.hashCode() : 0);
+        hash = 31 * hash + (this.address != null ? this.address.hashCode() : 0);
+        hash = 31 * hash + (this.clientClassification != null ? this.clientClassification.hashCode() : 0);
+        hash = 31 * hash + (this.clientObservations != null ? this.clientObservations.hashCode() : 0);
+        hash = 31 * hash + (this.phones != null ? this.phones.hashCode() : 0);
+        hash = 31 * hash + (this.saldo != null ? this.saldo.hashCode() : 0);
+        hash = 31 * hash + (this.reference != null ? this.reference.hashCode() : 0);
+        hash = 31 * hash + (this.clientReference != null ? this.clientReference.hashCode() : 0);
+        return hash;
+    }
+
 
 	 
 }

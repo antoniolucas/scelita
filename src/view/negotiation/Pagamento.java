@@ -11,20 +11,32 @@
 
 package view.negotiation;
 
+import com.avaje.ebean.Ebean;
 import java.awt.event.KeyEvent;
-import net.sf.nachocalendar.CalendarFactory;
-import net.sf.nachocalendar.components.DateField;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.util.Date;
+import java.util.Observable;
+import java.util.Observer;
+import javax.swing.JFrame;
+import model.Client;
+import model.Negotiation;
+import org.openide.util.Exceptions;
+import util.GuiUtils;
+import view.client.Cadastro;
 
 /**
  *
  * @author catia
  */
-public class Pagamento extends javax.swing.JFrame {
+public class Pagamento extends javax.swing.JDialog implements Observer{
+    Client client = new Client();
     /** Creates new form Pagamento */
-    public Pagamento() {
+    public Pagamento(java.awt.Frame parent, boolean modal) {
+        super(parent,modal);
         initComponents();
-        pack();
         this.setLocationRelativeTo(null);
+        findOrNewClientPanel1.addObserver(this);
     }
 
     /** This method is called from within the constructor to
@@ -38,17 +50,16 @@ public class Pagamento extends javax.swing.JFrame {
 
         jPanel2 = new javax.swing.JPanel();
         jLabel5 = new javax.swing.JLabel();
-        valorPagamento = new javax.swing.JTextField();
-        jLabel2 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
-        cliente = new javax.swing.JComboBox();
-        novoDebito = new javax.swing.JTextField();
         jLabel3 = new javax.swing.JLabel();
-        debitoAtual = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
-        dateField1 = new net.sf.nachocalendar.components.DateField();
         registrarPagamento = new javax.swing.JButton();
         cancelar = new javax.swing.JButton();
+        findOrNewClientPanel1 = new view.client.FindOrNewClientPanel();
+        dateField = new util.component.MyDateField();
+        debitoAtual = new util.component.MoneyField();
+        valorPagamento = new util.component.MoneyField();
+        novoDebito = new util.component.MoneyField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Registrar Pagamento");
@@ -56,34 +67,29 @@ public class Pagamento extends javax.swing.JFrame {
 
         jLabel5.setText("Valor: ");
 
-        jLabel2.setText("Selecione o cliente:");
-
         jLabel6.setText("Resta na Conta:");
-
-        cliente.setModel(new javax.swing.DefaultComboBoxModel(new String[] { " " }));
-        cliente.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                clienteActionPerformed(evt);
-            }
-        });
 
         jLabel3.setText("Débito atual:");
 
         jLabel4.setText("Data Pagamento:");
 
-        dateField1.setAntiAliased(true);
-        dateField1.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                dateField1KeyPressed(evt);
+        registrarPagamento.setText("Cadastrar");
+        registrarPagamento.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                registrarPagamentoActionPerformed(evt);
             }
         });
-
-        registrarPagamento.setText("Cadastrar");
 
         cancelar.setText("Cancelar");
         cancelar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cancelarActionPerformed(evt);
+            }
+        });
+
+        valorPagamento.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                valorPagamentoFocusLost(evt);
             }
         });
 
@@ -94,58 +100,54 @@ public class Pagamento extends javax.swing.JFrame {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel2)
-                    .addComponent(jLabel3)
-                    .addComponent(jLabel4)
-                    .addComponent(jLabel5)
-                    .addComponent(jLabel6))
-                .addGap(34, 34, 34)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(cliente, javax.swing.GroupLayout.PREFERRED_SIZE, 240, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(debitoAtual, javax.swing.GroupLayout.DEFAULT_SIZE, 240, Short.MAX_VALUE)
-                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addComponent(valorPagamento, javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(novoDebito, javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(dateField1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(30, 30, 30))
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(62, 62, 62)
-                .addComponent(registrarPagamento)
-                .addGap(77, 77, 77)
-                .addComponent(cancelar)
-                .addContainerGap(114, Short.MAX_VALUE))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(50, 50, 50)
+                        .addComponent(registrarPagamento)
+                        .addGap(77, 77, 77)
+                        .addComponent(cancelar))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel3)
+                            .addComponent(jLabel4)
+                            .addComponent(jLabel5)
+                            .addComponent(jLabel6))
+                        .addGap(34, 34, 34)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(novoDebito, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(dateField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(valorPagamento, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(debitoAtual, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                    .addComponent(findOrNewClientPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(35, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(21, 21, 21)
-                        .addComponent(jLabel2)
-                        .addGap(17, 17, 17)
-                        .addComponent(jLabel3)
-                        .addGap(18, 18, 18)
-                        .addComponent(jLabel4)
-                        .addGap(26, 26, 26)
-                        .addComponent(jLabel5)
-                        .addGap(22, 22, 22)
-                        .addComponent(jLabel6))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(cliente, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(debitoAtual, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(dateField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(valorPagamento, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(22, 22, 22)
-                        .addComponent(novoDebito, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 66, Short.MAX_VALUE)
+                .addGap(4, 4, 4)
+                .addComponent(findOrNewClientPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3)
+                    .addComponent(debitoAtual, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel4)
+                    .addComponent(dateField, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(26, 26, 26)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel5)
+                    .addComponent(valorPagamento, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel6)
+                    .addComponent(novoDebito, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(64, 64, 64)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(registrarPagamento)
                     .addComponent(cancelar))
-                .addGap(27, 27, 27))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         getContentPane().add(jPanel2, new java.awt.GridBagConstraints());
@@ -153,19 +155,36 @@ public class Pagamento extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void clienteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clienteActionPerformed
-        // TODO add your handling code here:
-}//GEN-LAST:event_clienteActionPerformed
-
     private void cancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelarActionPerformed
         this.dispose();
     }//GEN-LAST:event_cancelarActionPerformed
 
-    private void dateField1KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_dateField1KeyPressed
-        if (evt.getKeyCode() == KeyEvent.VK_ESCAPE){
-            dateField1.setEnabled(false);
+    private void registrarPagamentoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_registrarPagamentoActionPerformed
+        Number value = (Number) valorPagamento.getValue();
+        Date date = (Date)dateField.getValue();
+        Negotiation pagamento = new Negotiation(client,Negotiation.Type.COMPRA,value.floatValue(),date);
+        Ebean.beginTransaction();
+        try{
+            client.pagamento(pagamento.getNegotiationValue());
+            Ebean.save(pagamento);
+            Ebean.save(client);//TODO ver se eh preciso salvar client
+            Ebean.commitTransaction();
+        }finally{
+            Ebean.endTransaction();
         }
-    }//GEN-LAST:event_dateField1KeyPressed
+
+    }//GEN-LAST:event_registrarPagamentoActionPerformed
+
+    private void valorPagamentoFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_valorPagamentoFocusLost
+        try {
+            valorPagamento.commitEdit();
+        } catch (ParseException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        System.out.println(valorPagamento.getValue());
+        Float novoDebito = client.getSaldo() - ((Number) valorPagamento.getValue()).floatValue();
+        this.novoDebito.setValue(novoDebito);
+    }//GEN-LAST:event_valorPagamentoFocusLost
 
     /**
     * @param args the command line arguments
@@ -173,25 +192,33 @@ public class Pagamento extends javax.swing.JFrame {
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Pagamento().setVisible(true);
+                new Pagamento(new JFrame(),true).setVisible(true);
             }
         });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cancelar;
-    private javax.swing.JComboBox cliente;
-    private net.sf.nachocalendar.components.DateField dateField1;
-    private javax.swing.JTextField debitoAtual;
-    private javax.swing.JLabel jLabel2;
+    private util.component.MyDateField dateField;
+    private util.component.MoneyField debitoAtual;
+    private view.client.FindOrNewClientPanel findOrNewClientPanel1;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel2;
-    private javax.swing.JTextField novoDebito;
+    private util.component.MoneyField novoDebito;
     private javax.swing.JButton registrarPagamento;
-    private javax.swing.JTextField valorPagamento;
+    private util.component.MoneyField valorPagamento;
     // End of variables declaration//GEN-END:variables
+
+    @Override
+    public void update(Observable o, Object arg) {
+        if (arg != null) {
+            this.client = (Client) arg;
+            this.debitoAtual.setValue(client.getSaldo());
+        }
+
+    }
 
 }

@@ -1,22 +1,7 @@
 package scelita;
 
 import com.avaje.ebean.Ebean;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
-import java.util.StringTokenizer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import model.Client;
-import model.ClientClassification;
-import model.Phone;
-import net.java.ao.DBParam;
-import net.java.ao.EntityManager;
-import net.java.ao.Generator;
 
 
 /**

@@ -1,69 +1,95 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
 
 /*
- * Cadastro.java
+ * Cadastro2.java
  *
- * Created on 10/10/2009, 20:41:41
+ * Created on Jan 18, 2010, 11:37:16 PM
  */
 
 package view.client;
 
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.Insets;
+import java.text.DecimalFormat;
+import javax.swing.text.DefaultFormatterFactory;
+import javax.swing.text.NumberFormatter;
+import org.netbeans.lib.awtextra.AbsoluteConstraints;
+import org.netbeans.lib.awtextra.AbsoluteLayout;
+import org.netbeans.validation.api.Problems;
+import util.component.MoneyField;
 import com.avaje.ebean.Ebean;
-import controller.GenericController;
 import java.awt.AWTKeyStroke;
 import java.awt.Component;
 import java.awt.KeyboardFocusManager;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
+import javax.swing.JButton;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.WindowConstants;
+import javax.swing.text.JTextComponent;
 import mark.utils.bean.IntFormatter;
+import mark.utils.bean.MoneyFormatter;
 import mark.utils.bind.Binder;
 import model.Client;
 import model.Phone;
 import org.netbeans.validation.api.Problem;
 import org.netbeans.validation.api.builtin.Validators;
 import org.netbeans.validation.api.ui.ValidationGroup;
+import org.netbeans.validation.api.ui.ValidationListener;
 import org.netbeans.validation.api.ui.ValidationPanel;
 
 /**
  *
- * @author catia
+ * @author Lucas
  */
-public class Cadastro extends javax.swing.JFrame {
+public class Cadastro extends javax.swing.JDialog {
 ValidationGroup validationGroup ;
 Binder binder;
     private Client client;
+
     /** Creates new form Cadastro */
-    public Cadastro() {
+    public Cadastro(java.awt.Frame parent, boolean modal) {
+        super(parent, modal);
         HashSet conj = new HashSet(this.getFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS));
         conj.add(AWTKeyStroke.getAWTKeyStroke(KeyEvent.VK_ENTER, 0));
         this.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, conj);
 
         initComponents();
 //        ValidationPanel validationPanel = new ValidationPanel();
-        apelido.setName("[name:nickName]");
-        diaPagamento.setName("[name:paymentDay][fmt:int]");
-        endereco.setName("[name:address]");
-        nomeCompleto.setName("[name:name]");
-        referencia.setName("[name:reference]");
-        binder = new Binder(jPanel1,Client.class,new IntFormatter());
+//        apelido.setName("[name:nickName]");
+//        diaPagamento.setName("[name:paymentDay][fmt:int]");
+//        endereco.setName("[name:address]");
+//        nomeCompleto.setName("[name:name]");
+//        referencia.setName("[name:reference]");
+        binder = new Binder(fieldsPanel,Client.class,new IntFormatter(),new MoneyFormatter());
         //validationPanel.setInnerComponent(jPanel1);
         validationGroup = validationPanel.getValidationGroup();
-        validationGroup.add(this.nomeCompleto,Validators.REQUIRE_NON_EMPTY_STRING);
+        for (Component c : fieldsPanel.getComponents())
+            if (c instanceof JTextComponent) validationGroup.add((JTextComponent)c,Validators.REQUIRE_NON_EMPTY_STRING);
         this.pack();
         this.setLocationRelativeTo(null);
         client = new Client();
     }
 
-    public Cadastro(Client client) {
-        this();
+    public Cadastro(java.awt.Frame parent, boolean modal, Client client) {
+        this(parent, modal);
         this.client = client;
+        binder.updateView(client);
     }
 
     /** This method is called from within the constructor to
@@ -74,209 +100,296 @@ Binder binder;
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        GridBagConstraints gridBagConstraints;
 
-        jPanel1 = new javax.swing.JPanel();
-        phonesPanel = new javax.swing.JPanel();
-        telefone3 = new javax.swing.JFormattedTextField();
-        telefone2 = new javax.swing.JFormattedTextField();
-        telefone1 = new javax.swing.JFormattedTextField();
-        apelido = new javax.swing.JTextField();
-        referencia = new javax.swing.JTextField();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        endereco = new javax.swing.JTextArea();
-        nomeCompleto = new javax.swing.JTextField();
-        diaPagamento = new javax.swing.JFormattedTextField();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
-        jLabel6 = new javax.swing.JLabel();
-        cadastrar = new javax.swing.JButton();
-        cancelar = new javax.swing.JButton();
-        jLabel7 = new javax.swing.JLabel();
-        validationPanel = new org.netbeans.validation.api.ui.ValidationPanel();
+        jPanel2 = new JPanel();
+        buttonsPanel = new JPanel();
+        cancelar = new JButton();
+        cadastrar = new JButton();
+        labelsPanel = new JPanel();
+        jLabel2 = new JLabel();
+        jLabel3 = new JLabel();
+        jLabel4 = new JLabel();
+        jLabel7 = new JLabel();
+        jLabel5 = new JLabel();
+        jLabel1 = new JLabel();
+        fieldsPanel = new JPanel();
+        apelido = new JTextField();
+        referencia = new JTextField();
+        jScrollPane1 = new JScrollPane();
+        endereco = new JTextArea();
+        nomeCompleto = new JTextField();
+        diaPagamento = new JFormattedTextField();
+        moneyField1 = new MoneyField(0.0f);
+        validationPanel = new ValidationPanel();
+        phonesPanel = new JPanel();
+        telefone3 = new JFormattedTextField();
+        telefone2 = new JFormattedTextField();
+        telefone1 = new JFormattedTextField();
+        jLabel6 = new JLabel();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("Cadastro de Clientes");
-        setLocationByPlatform(true);
+        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("Cliente"); // NOI18N
+        setName("Form"); // NOI18N
 
-        telefone3.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0"))));
+        jPanel2.setName("jPanel2"); // NOI18N
+        jPanel2.setLayout(new AbsoluteLayout());
 
-        telefone2.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0"))));
+        buttonsPanel.setName("buttonsPanel"); // NOI18N
+        buttonsPanel.setLayout(new GridLayout(1, 0, 40, 0));
 
-        telefone1.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0"))));
-
-        javax.swing.GroupLayout phonesPanelLayout = new javax.swing.GroupLayout(phonesPanel);
-        phonesPanel.setLayout(phonesPanelLayout);
-        phonesPanelLayout.setHorizontalGroup(
-            phonesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(phonesPanelLayout.createSequentialGroup()
-                .addGroup(phonesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(telefone1, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(telefone3, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(telefone2, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(24, Short.MAX_VALUE))
-        );
-        phonesPanelLayout.setVerticalGroup(
-            phonesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(phonesPanelLayout.createSequentialGroup()
-                .addComponent(telefone1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(telefone2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(telefone3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-
-        endereco.setColumns(20);
-        endereco.setRows(5);
-        jScrollPane1.setViewportView(endereco);
-
-        diaPagamento.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0"))));
-
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(diaPagamento, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 227, Short.MAX_VALUE)
-                    .addComponent(apelido, javax.swing.GroupLayout.DEFAULT_SIZE, 227, Short.MAX_VALUE)
-                    .addComponent(nomeCompleto, javax.swing.GroupLayout.DEFAULT_SIZE, 227, Short.MAX_VALUE)
-                    .addComponent(referencia, javax.swing.GroupLayout.DEFAULT_SIZE, 227, Short.MAX_VALUE)
-                    .addComponent(phonesPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap())
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(nomeCompleto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(apelido, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(referencia, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(diaPagamento, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(20, 20, 20)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 19, Short.MAX_VALUE)
-                .addComponent(phonesPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-        );
-
-        jLabel2.setText("Nome Completo:");
-
-        jLabel3.setText("Apelido:");
-
-        jLabel4.setText("Referência:");
-
-        jLabel5.setText("Endereço:");
-
-        jLabel6.setText("Telefones:");
-
-        cadastrar.setText("Cadastrar");
-        cadastrar.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cadastrarActionPerformed(evt);
-            }
-        });
-        cadastrar.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                cadastrarKeyPressed(evt);
-            }
-        });
-
-        cancelar.setText("Cancelar");
-        cancelar.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        cancelar.setText("Cancelar"); // NOI18N
+        cancelar.setName("cancelar"); // NOI18N
+        cancelar.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
                 cancelarActionPerformed(evt);
             }
         });
+        buttonsPanel.add(cancelar);
+
+        cadastrar.setText("Cadastrar"); // NOI18N
+        cadastrar.setName("cadastrar"); // NOI18N
+        cadastrar.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                cadastrarActionPerformed(evt);
+            }
+        });
+        cadastrar.addKeyListener(new KeyAdapter() {
+            public void keyPressed(KeyEvent evt) {
+                cadastrarKeyPressed(evt);
+            }
+        });
+        buttonsPanel.add(cadastrar);
+
+        jPanel2.add(buttonsPanel, new AbsoluteConstraints(145, 431, -1, -1));
+
+        labelsPanel.setName("labelsPanel"); // NOI18N
+        labelsPanel.setLayout(new GridBagLayout());
+
+        jLabel2.setText("Nome Completo:"); // NOI18N
+        jLabel2.setName("jLabel2"); // NOI18N
+        gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 5;
+        gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new Insets(12, 0, 0, 0);
+        labelsPanel.add(jLabel2, gridBagConstraints);
+
+        jLabel3.setText("Apelido:"); // NOI18N
+        jLabel3.setName("jLabel3"); // NOI18N
+        gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new Insets(17, 0, 0, 0);
+        labelsPanel.add(jLabel3, gridBagConstraints);
+
+        jLabel4.setText("Referência:");
+        jLabel4.setName("jLabel4"); // NOI18N
+        gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new Insets(17, 0, 0, 0);
+        labelsPanel.add(jLabel4, gridBagConstraints);
 
         jLabel7.setText("Dia Pagamento:");
+        jLabel7.setName("jLabel7"); // NOI18N
+        gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridwidth = 4;
+        gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new Insets(17, 0, 0, 0);
+        labelsPanel.add(jLabel7, gridBagConstraints);
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        jLabel5.setText("Endereço:");
+        jLabel5.setName("jLabel5"); // NOI18N
+        gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new Insets(17, 0, 40, 0);
+        labelsPanel.add(jLabel5, gridBagConstraints);
+
+        jLabel1.setText("Saldo Devedor:");
+        jLabel1.setName("jLabel1"); // NOI18N
+        gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.insets = new Insets(17, 0, 0, 0);
+        labelsPanel.add(jLabel1, gridBagConstraints);
+
+        jPanel2.add(labelsPanel, new AbsoluteConstraints(29, 12, -1, -1));
+
+        fieldsPanel.setName("fieldsPanel"); // NOI18N
+        fieldsPanel.setLayout(new GridBagLayout());
+
+        apelido.setName("[name:nickName]");
+        gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.ipadx = 234;
+        gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new Insets(12, 12, 0, 12);
+        fieldsPanel.add(apelido, gridBagConstraints);
+
+        referencia.setName("[name:reference]");
+        gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.ipadx = 234;
+        gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new Insets(12, 12, 0, 12);
+        fieldsPanel.add(referencia, gridBagConstraints);
+
+        jScrollPane1.setName("jScrollPane1"); // NOI18N
+
+        endereco.setColumns(20);
+        endereco.setRows(5);
+        endereco.setName("[name:address]");
+        jScrollPane1.setViewportView(endereco);
+
+        gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = GridBagConstraints.BOTH;
+        gridBagConstraints.ipadx = 50;
+        gridBagConstraints.ipady = 26;
+        gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new Insets(12, 12, 12, 12);
+        fieldsPanel.add(jScrollPane1, gridBagConstraints);
+
+        nomeCompleto.setName("[name:name]");
+        gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.ipadx = 234;
+        gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new Insets(12, 12, 0, 12);
+        fieldsPanel.add(nomeCompleto, gridBagConstraints);
+
+        diaPagamento.setName("[name:paymentDay][fmt:int]");
+        diaPagamento.setValue(1);
+        gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.ipadx = 35;
+        gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new Insets(12, 12, 0, 0);
+        fieldsPanel.add(diaPagamento, gridBagConstraints);
+
+        moneyField1.setName("[name:saldo][fmt:money]");
+        gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.anchor = GridBagConstraints.SOUTHWEST;
+        gridBagConstraints.insets = new Insets(12, 12, 0, 0);
+        fieldsPanel.add(moneyField1, gridBagConstraints);
+
+        jPanel2.add(fieldsPanel, new AbsoluteConstraints(139, 12, 254, 292));
+
+        validationPanel.setName("validationPanel"); // NOI18N
+        jPanel2.add(validationPanel, new AbsoluteConstraints(891, 14, -1, -1));
+
+        phonesPanel.setName("phonesPanel"); // NOI18N
+        phonesPanel.setLayout(new GridBagLayout());
+
+        telefone3.setFormatterFactory(new DefaultFormatterFactory(new NumberFormatter(new DecimalFormat("#"))));
+        telefone3.setName("telefone3"); // NOI18N
+        gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.ipadx = 82;
+        gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new Insets(12, 20, 18, 24);
+        phonesPanel.add(telefone3, gridBagConstraints);
+
+        telefone2.setFormatterFactory(new DefaultFormatterFactory(new NumberFormatter(new DecimalFormat("#"))));
+        telefone2.setName("telefone2"); // NOI18N
+        gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridheight = 3;
+        gridBagConstraints.ipadx = 82;
+        gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new Insets(12, 20, 0, 24);
+        phonesPanel.add(telefone2, gridBagConstraints);
+
+        telefone1.setFormatterFactory(new DefaultFormatterFactory(new NumberFormatter(new DecimalFormat("#"))));
+        telefone1.setName("telefone1"); // NOI18N
+        gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.ipadx = 82;
+        gridBagConstraints.anchor = GridBagConstraints.WEST;
+        gridBagConstraints.insets = new Insets(0, 20, 0, 24);
+        phonesPanel.add(telefone1, gridBagConstraints);
+
+        jLabel6.setText("Telefones:");
+        jLabel6.setName("jLabel6"); // NOI18N
+        gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridheight = 2;
+        gridBagConstraints.ipadx = 40;
+        gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
+        phonesPanel.add(jLabel6, gridBagConstraints);
+
+        jPanel2.add(phonesPanel, new AbsoluteConstraints(29, 326, -1, -1));
+
+        GroupLayout layout = new GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            layout.createParallelGroup(Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel2)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(validationPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(jLabel3)
-                            .addComponent(jLabel4)
-                            .addComponent(jLabel5)
-                            .addComponent(jLabel7)
-                            .addComponent(jLabel6))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(67, 67, 67)
-                        .addComponent(cadastrar)
-                        .addGap(70, 70, 70)
-                        .addComponent(cancelar)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(jPanel2, GroupLayout.PREFERRED_SIZE, 384, GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            layout.createParallelGroup(Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(28, 28, 28)
-                        .addComponent(jLabel2)
-                        .addGap(18, 18, 18)
-                        .addComponent(jLabel3)
-                        .addGap(23, 23, 23)
-                        .addComponent(jLabel4)
-                        .addGap(18, 18, 18)
-                        .addComponent(jLabel7)
-                        .addGap(29, 29, 29)
-                        .addComponent(jLabel5)
-                        .addGap(96, 96, 96)
-                        .addComponent(jLabel6))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(14, 14, 14)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(validationPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(cancelar)
-                    .addComponent(cadastrar))
-                .addContainerGap(22, Short.MAX_VALUE))
+                .addComponent(jPanel2, GroupLayout.PREFERRED_SIZE, 466, GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void cancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelarActionPerformed
-        this.dispose();
-    }//GEN-LAST:event_cancelarActionPerformed
-
-    private void cadastrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cadastrarActionPerformed
+    private void cadastrarActionPerformed(ActionEvent evt) {//GEN-FIRST:event_cadastrarActionPerformed
         Problem problem = validationGroup.validateAll();
         if (problem != null) return;
-            binder.updateModel(client);
-            for (Component t : phonesPanel.getComponents()){
+        binder.updateModel(client);
+        for (Component t : phonesPanel.getComponents()) {
+            if (t instanceof JFormattedTextField) {
                 JFormattedTextField telefone = (JFormattedTextField) t;
-                if (!telefone.getText().isEmpty()){
+                if (!telefone.getText().isEmpty()) {
                     Phone p = new Phone((Long) telefone.getValue(), client);
+                    client.addPhone(p);
                 }
             }
-            Ebean.save(client);//TODO ver se ta salvando os phones tb =p
-            this.dispose();
-
+        }
+        Ebean.save(client);
+        this.dispose();
     }//GEN-LAST:event_cadastrarActionPerformed
 
-    private void cadastrarKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_cadastrarKeyPressed
-    }//GEN-LAST:event_cadastrarKeyPressed
+    private void cadastrarKeyPressed(KeyEvent evt) {//GEN-FIRST:event_cadastrarKeyPressed
+
+}//GEN-LAST:event_cadastrarKeyPressed
+
+    private void cancelarActionPerformed(ActionEvent evt) {//GEN-FIRST:event_cancelarActionPerformed
+        client = null;
+        this.dispose();
+}//GEN-LAST:event_cancelarActionPerformed
 
     /**
     * @param args the command line arguments
@@ -284,62 +397,48 @@ Binder binder;
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Cadastro().setVisible(true);
+                Cadastro dialog = new Cadastro(new javax.swing.JFrame(), true);
+                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
+                    public void windowClosing(java.awt.event.WindowEvent e) {
+                        System.exit(0);
+                    }
+                });
+                dialog.setVisible(true);
             }
         });
     }
-//     public static void main(String[] args) {
-//    //This is our actual UI
-//    JPanel inner = new JPanel();
-//    JLabel lbl = new JLabel("Enter a URL");
-//    JTextField f = new JTextField();
-//    f.setColumns(40);
-//    //Setting the component name is important - it is used in
-//    //error messages
-//    f.setName("URL");
-//    inner.add(lbl);
-//    inner.add(f);
-//    //Create a ValidationPanel - this is a panel that will show
-//    //any problem with the input at the bottom with an icon
-//    ValidationPanel panel = new ValidationPanel();
-//    panel.setInnerComponent(inner);
-//    ValidationGroup group = panel.getValidationGroup();
-//    //This is all we do to validate the URL:
-//    group.add(f, Validators.REQUIRE_NON_EMPTY_STRING);//,
-////            Validators.NO_WHITESPACE,
-////            Validators.URL_MUST_BE_VALID);
-//    //Convenience method to show a simple dialog
-//    if (panel.showOkCancelDialog("URL")) {
-//      System.out.println("User clicked OK.  URL is " + f.getText());
-//      System.exit(0);
-//    } else {
-//      System.err.println("User clicked cancel.");
-//      System.exit(1);
-//    }
-//  }
-
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTextField apelido;
-    private javax.swing.JButton cadastrar;
-    private javax.swing.JButton cancelar;
-    private javax.swing.JFormattedTextField diaPagamento;
-    private javax.swing.JTextArea endereco;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextField nomeCompleto;
-    private javax.swing.JPanel phonesPanel;
-    private javax.swing.JTextField referencia;
-    private javax.swing.JFormattedTextField telefone1;
-    private javax.swing.JFormattedTextField telefone2;
-    private javax.swing.JFormattedTextField telefone3;
-    private org.netbeans.validation.api.ui.ValidationPanel validationPanel;
+    private JTextField apelido;
+    private JPanel buttonsPanel;
+    private JButton cadastrar;
+    private JButton cancelar;
+    private JFormattedTextField diaPagamento;
+    private JTextArea endereco;
+    private JPanel fieldsPanel;
+    private JLabel jLabel1;
+    private JLabel jLabel2;
+    private JLabel jLabel3;
+    private JLabel jLabel4;
+    private JLabel jLabel5;
+    private JLabel jLabel6;
+    private JLabel jLabel7;
+    private JPanel jPanel2;
+    private JScrollPane jScrollPane1;
+    private JPanel labelsPanel;
+    private MoneyField moneyField1;
+    private JTextField nomeCompleto;
+    private JPanel phonesPanel;
+    private JTextField referencia;
+    private JFormattedTextField telefone1;
+    private JFormattedTextField telefone2;
+    private JFormattedTextField telefone3;
+    private ValidationPanel validationPanel;
     // End of variables declaration//GEN-END:variables
+
+    void updateView(Client client) {
+        this.client = client;
+        binder.updateView(client);
+    }
 
 }

@@ -1,16 +1,24 @@
 package model;
 
+import com.avaje.ebean.annotation.EnumMapping;
 import java.io.Serializable;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
+import mark.utils.bean.DateFormatter;
+import mark.utils.bean.MoneyFormatter;
+import mark.utils.el.annotation.Resolvable;
+import mark.utils.el.handler.MethodHandler;
 
 /**
  *
@@ -18,23 +26,30 @@ import javax.persistence.Temporal;
  */
 @Entity
 public class Negotiation implements Serializable {
+
+     @EnumMapping(integerType=true,nameValuePairs="COMPRA=1, PAGAMENTO=34, DEVOLUCAO = 111")
+    public enum Type { COMPRA, PAGAMENTO, DEVOLUCAO}
+
+    @Enumerated(EnumType.ORDINAL)
+    @Column(nullable=false)
+    @Resolvable(accessMethod = MethodHandler.class, colName = "Tipo")
+    private Type type;
+
     @Id
     private Long id;
 
-
-    @ManyToOne
-    private NegotiationType negotiationType;
-
+    @Resolvable(accessMethod = MethodHandler.class, formatter = MoneyFormatter.class, colName = "Valor")
     private Float negotiationValue;
 
+    @Resolvable(accessMethod = MethodHandler.class, formatter = DateFormatter.class, colName = "Data")
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date negotiationDate;
 
     @ManyToMany
     @JoinTable(
         name="products_negotiation",
-        joinColumns=@JoinColumn(name="product_id", referencedColumnName="id"),
-        inverseJoinColumns=@JoinColumn(name="negotiation_id", referencedColumnName="id")
+        inverseJoinColumns=@JoinColumn(name="product_id", referencedColumnName="id"),
+        joinColumns=@JoinColumn(name="negotiation_id", referencedColumnName="id")
     )
     private List<Product> products;
 
@@ -42,16 +57,27 @@ public class Negotiation implements Serializable {
     private Client client;
 
     public Negotiation() {
+        products = new ArrayList<Product>();
     }
 
+    public Negotiation(Client client, Type negotiationType, Float negotiationValue) {
+       this(client, negotiationType, negotiationValue, new Date());
+    }
 
-    public Negotiation(Client client, NegotiationType negotiationType, Float negotiationValue, Date negotiationDate) {
-        this.negotiationType = negotiationType;
+    public Negotiation(Client client, Type negotiationType, Float negotiationValue, Date negotiationDate) {
+        this.type = negotiationType;
         this.negotiationValue = negotiationValue;
         this.negotiationDate = negotiationDate;
+        this.client = client;
     }
 
+    public Type getType() {
+        return type;
+    }
 
+    public void setType(Type negotiationType) {
+        this.type = negotiationType;
+    }
 
     public Long getId() {
         return id;
@@ -85,13 +111,6 @@ public class Negotiation implements Serializable {
         this.negotiationDate = negotiationDate;
     }
 
-    public NegotiationType getNegotiationType() {
-        return negotiationType;
-    }
-
-    public void setNegotiationType(NegotiationType negotiationType) {
-        this.negotiationType = negotiationType;
-    }
 
     public Float getNegotiationValue() {
         return negotiationValue;
